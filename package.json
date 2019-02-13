@@ -1,0 +1,12 @@
+{
+  "name": "sqll",
+  "version": "1.0.1",
+  "main": "Model.js",
+  "author": "kmltrk <kmltrk07@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.11",
+    "moment": "^2.24.0",
+    "mysql2": "^1.6.5"
+  }
+}
