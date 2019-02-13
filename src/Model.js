@@ -2,8 +2,6 @@ import mysql from 'mysql2/promise'
 import _ from 'lodash'
 import moment from 'moment'
 
-import { databaseConfig } from __dirname+'/config/database'
-
 
 export default class Model {
 
@@ -15,8 +13,12 @@ export default class Model {
     throw Error("You should override the getTableName method")
   }
 
+  getDatabaseConfig() {
+    throw Error("You should override the getDatabaseConfig method")
+  }
+
   async connect() {
-    return await mysql.createConnection(databaseConfig)
+    return await mysql.createConnection(this.getDatabaseConfig())
   }
 
   /*

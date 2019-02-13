@@ -1,12 +1,22 @@
 {
   "name": "sqll",
-  "version": "1.0.1",
-  "main": "Model.js",
+  "version": "1.0.4",
+  "main": "./dist/index.js",
   "author": "kmltrk <kmltrk07@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "build": "babel src --out-dir dist",
+    "prepublish": "yarn build"
+  },
   "dependencies": {
+    "babel-plugin-transform-runtime": "^6.23.0",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
     "mysql2": "^1.6.5"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0"
   }
 }
