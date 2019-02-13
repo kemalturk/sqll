@@ -43,13 +43,14 @@ export default class Model {
 
   }
 
+
   /*
-  ╔═╗╦╔╗╔╔╦╗  ╔═╗╔╗╔╔═╗
-  ╠╣ ║║║║ ║║  ║ ║║║║║╣ 
-  ╚  ╩╝╚╝═╩╝  ╚═╝╝╚╝╚═╝
+  ╔═╗╦╔╗╔╔╦╗  ╔═╗╔═╗ ╦ ╦╔═╗╦  
+  ╠╣ ║║║║ ║║  ║╣ ║═╬╗║ ║╠═╣║  
+  ╚  ╩╝╚╝═╩╝  ╚═╝╚═╝╚╚═╝╩ ╩╩═╝
   */
 
-  async findOne(where){
+  async findEqual(where){
 
     if(!_.isPlainObject(where)) throw Error("parameter should be json object")
 
@@ -96,7 +97,7 @@ export default class Model {
 
     if(!_.isPlainObject(data)) throw Error("parameter should be json object")
 
-    const existData = await this.findOne(data)
+    const existData = await this.findEqual(data)
     if(existData) return existData
 
     const length = _.size(data)
@@ -129,7 +130,7 @@ export default class Model {
       return false
 
     
-    return await this.findOne({id: response.insertId})
+    return await this.findEqual({id: response.insertId})
 
   }
 
@@ -184,7 +185,7 @@ export default class Model {
     if(response.affectedRows < 1)
       return false
 
-    return await this.findOne(where)
+    return await this.findEqual(where)
 
   }
 
@@ -234,7 +235,7 @@ export default class Model {
     if(response.affectedRows < 1)
       return false
 
-    return await this.findOne(data)
+    return await this.findEqual(data)
 
 
   }
