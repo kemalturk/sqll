@@ -1,34 +1,28 @@
-import mysql from 'mysql2/promise'
-import _ from 'lodash'
-import moment from 'moment'
+import * as _ from 'lodash'
+import * as moment from 'moment'
 
+// import mysql from 'mysql2/promise'
+const mysql = require('mysql2/promise')
 
-export default class Model {
+export default abstract class Model {
+
+  table: string
 
   constructor() {
     this.table = this.getTableName()
   }
 
-  /**
-   * @abstract
-   * @returns{string}
-   */
-  getTableName() {
-    throw Error("You should override the getTableName method")
-  }
+  // getTableName(): string {
+  //   throw Error('You should override the getTableName method')
+  // }
+  abstract getTableName(): string
 
-  /**
-   * @abstract
-   * @returns{object}
-   */
-  getDatabaseConfig() {
-    throw Error("You should override the getDatabaseConfig method")
-  }
+  // getDatabaseConfig(): object {
+  //   throw Error('You should override the getDatabaseConfig method')
+  // }
+  abstract getDatabaseConfig(): object
 
-  /**
-   * @private
-   */
-  async connect() {
+  private async connect() {
     return await mysql.createConnection(this.getDatabaseConfig())
   }
 
@@ -38,7 +32,7 @@ export default class Model {
   ╚═╝╚╚═╝╚═╝╩╚═ ╩ 
   */
 
-  async query(sql, values) {
+  async query(sql: string, values: any[]) {
 
     try {
 
@@ -54,32 +48,32 @@ export default class Model {
 
   }
 
-
   /*
   ╔═╗╦╔╗╔╔╦╗  ╔═╗╔═╗ ╦ ╦╔═╗╦  
   ╠╣ ║║║║ ║║  ║╣ ║═╬╗║ ║╠═╣║  
   ╚  ╩╝╚╝═╩╝  ╚═╝╚═╝╚╚═╝╩ ╩╩═╝
   */
 
-  async findEqual(where){
+  async findEqual(where: object) {
 
-    if(!_.isPlainObject(where)) throw Error("parameter should be json object")
+    if(!_.isPlainObject(where)) {throw Error('parameter should be json object')}
 
-    //Gelen json objesini sql where statement a çeviriyoruz
-    let setStatement = ""
+    // Gelen json objesini sql where statement a çeviriyoruz
+    let setStatement = ''
 
     const length = _.size(where)
 
     let i = 0
 
-    const values = []
+    const values: any[] = []
 
     _.forEach(where, (value, key) => {
-      setStatement += "`"+key+"`" + "=" + " ?"
+      setStatement += '`' + key + '`' + '=' + ' ?'
       values.push(value)
 
-      if(i < length - 1 )
-        setStatement += " AND "
+      if (i < length - 1 ) {
+        setStatement += ' AND '
+      }
 
       i++
     })
@@ -88,11 +82,11 @@ export default class Model {
 
     const r = await this.query(sql, values)
 
-    if(!r) return false
+    if (!r) {return false}
 
     const [rows] = r
 
-    if(!rows || rows.length !== 1) return false
+    if (!rows || rows.length !== 1) {return false}
 
     return rows[0]
 
@@ -104,27 +98,31 @@ export default class Model {
   ╚  ╩╝╚╝═╩╝  ╚═╝╩╚═  ╚═╝╩╚═╚═╝╩ ╩ ╩ ╚═╝
   */
 
-  async findOrCreate(data) {
+  async findOrCreate(data: object) {
 
-    if(!_.isPlainObject(data)) throw Error("parameter should be json object")
+    if (!_.isPlainObject(data)) {throw Error('parameter should be json object')}
 
     const existData = await this.findEqual(data)
-    if(existData) return existData
+
+    if (existData) {
+      return existData
+    } 
 
     const length = _.size(data)
 
     let i = 0
 
-    let setStatement = ""
+    let setStatement = ''
 
-    const values = []
+    const values: any[] = []
 
     _.forEach(data, (value, key) => {
-      setStatement += "`"+key+"`" + "=" + "?"
+      setStatement += '`' + key + '`' + '=' + '?'
       values.push(value)
 
-      if(i < length - 1 )
-        setStatement += ", "
+      if (i < length - 1 ) {
+        setStatement += ', '
+      }
 
       i++
     })
@@ -133,13 +131,11 @@ export default class Model {
     
     const r = await this.query(sql, values)
 
-    if(!r) return false
+    if (!r) {return false}
 
     const [response] = r
 
-    if(response.affectedRows !== 1)
-      return false
-
+    if (response.affectedRows !== 1) {return false}
     
     return await this.findEqual({id: response.insertId})
 
@@ -151,50 +147,48 @@ export default class Model {
   ╩╝╚╝╚═╝╚═╝╩╚═ ╩   ╚═╝╩╚═  ╚═╝╩  ═╩╝╩ ╩ ╩ ╚═╝
   */
 
-  async insertOrUpdate(data, where) {
+  async insertOrUpdate(data: object, where: object) {
 
-    if(!_.isPlainObject(data)) throw Error("data parameter should be json object")
-    if(!_.isPlainObject(where)) throw Error("where parameter should be json object")
+    if (!_.isPlainObject(data)) {throw Error('data parameter should be json object')}
+    if (!_.isPlainObject(where)) {throw Error('where parameter should be json object')}
 
-    let length = _.size(data)
+    const length = _.size(data)
 
     let i = 0
 
-    let setStatement = ""
+    let setStatement = ''
 
-    let keysForQuery = ""
-    let valuesForQuery = ""
+    let keysForQuery = ''
+    let valuesForQuery = ''
 
-    const values = []
+    const values: any[] = []
 
     _.forEach(data, (value, key) => {
       // setStatement += "`"+key+"`" + " = " + "?"
-      setStatement += "`"+key+"`" + " = " + "'"+value+"'"
+      setStatement += '`' + key + '`' + ' = ' + '\'' + value + '\''
       values.push(value)
 
-      keysForQuery += "`"+key+"`"
-      valuesForQuery += "'"+value+"'"
+      keysForQuery += '`' + key + '`'
+      valuesForQuery += '\'' + value + '\''
 
-      if(i < length - 1 ){
-        setStatement += ", "
-        keysForQuery += ","
-        valuesForQuery += ","
+      if (i < length - 1 ) {
+        setStatement += ', '
+        keysForQuery += ','
+        valuesForQuery += ','
       }
         
       i++
     })
 
-
     const sql = /*sql*/`insert into ${this.table} (${keysForQuery}) values (${valuesForQuery}) on duplicate key update ${setStatement} `
 
     const r = await this.query(sql, values)
 
-    if(!r) return false
+    if (!r) {return false}
 
     const [response] = r
 
-    if(response.affectedRows < 1)
-      return false
+    if (response.affectedRows < 1) {return false}
 
     return await this.findEqual(where)
 
@@ -206,52 +200,47 @@ export default class Model {
   ╩╝╚╝╚═╝╚═╝╩╚═ ╩   ╚═╝╝╚╝╚═╝
   */
 
-  async insertOne(data) {
+  async insertOne(data: object) {
 
-    if(!_.isPlainObject(data)) throw Error("data parameter should be json object")
+    if (!_.isPlainObject(data)) {throw Error('data parameter should be json object')}
 
-    let length = _.size(data)
+    const length = _.size(data)
 
     let i = 0
 
-    let keysForQuery = ""
-    let valuesForQuery = ""
+    let keysForQuery = ''
+    let valuesForQuery = ''
 
-    const values = []
+    const values: any[] = []
 
     _.forEach(data, (value, key) => {
 
       values.push(value)
 
-      keysForQuery += "`"+key+"`"
-      valuesForQuery += "'"+value+"'"
+      keysForQuery += '`' + key + '`'
+      valuesForQuery += '\'' + value + '\''
 
-      if(i < length - 1 ){
-        keysForQuery += ","
-        valuesForQuery += ","
+      if (i < length - 1 ) {
+        keysForQuery += ','
+        valuesForQuery += ','
       }
         
       i++
     })
 
-
     const sql = /*sql*/`insert into ${this.table} (${keysForQuery}) values (${valuesForQuery})`
 
     const r = await this.query(sql, values)
 
-    if(!r) return false
+    if (!r) {return false}
 
     const [response] = r
 
-    if(response.affectedRows < 1)
-      return false
-
+    if (response.affectedRows < 1) {return false}
+      
     return await this.findEqual(data)
 
-
   }
-
-
 
   /*
   ██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗     ███████╗██╗   ██╗███╗   ██╗ ██████╗████████╗██╗ ██████╗ ███╗   ██╗███████╗
@@ -262,9 +251,8 @@ export default class Model {
   ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝    ╚═╝      ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝
   */
 
-  convertDateToMysqlFormat(date) {
+  convertDateToMysqlFormat(date: any) {
     return moment(date).format('YYYY-MM-DD HH:mm:ss')
   }
-
 
 }
