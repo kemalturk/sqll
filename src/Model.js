@@ -9,14 +9,25 @@ export default class Model {
     this.table = this.getTableName()
   }
 
+  /**
+   * @abstract
+   * @returns{string}
+   */
   getTableName() {
     throw Error("You should override the getTableName method")
   }
 
+  /**
+   * @abstract
+   * @returns{object}
+   */
   getDatabaseConfig() {
     throw Error("You should override the getDatabaseConfig method")
   }
 
+  /**
+   * @private
+   */
   async connect() {
     return await mysql.createConnection(this.getDatabaseConfig())
   }
