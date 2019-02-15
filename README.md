@@ -1,6 +1,6 @@
 # sqll
 
-sqll is a very simple Node.js ORM for MySQL.
+sqll is a very simple Mysql library for Node.js
 
 ## Installation
 
